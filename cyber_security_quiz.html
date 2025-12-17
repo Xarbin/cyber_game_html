@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  <title>Cyber Security Quiz</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      padding: 15px;
+      padding-bottom: 80px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Header Stats Bar */
+    .header {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #22d3ee;
+      border-radius: 12px;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 10px;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    
+    .stat-value {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .stat-rank { color: #22d3ee; }
+    .stat-xp { color: #fbbf24; }
+    .stat-streak { color: #f97316; }
+    .stat-accuracy { color: #22c55e; }
+    .stat-accuracy.low { color: #ef4444; }
+    
+    /* Main Card */
+    .card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #22d3ee;
+      border-radius: 16px;
+      padding: 25px 20px;
+      box-shadow: 0 0 40px rgba(34, 211, 238, 0.2);
+    }
+    
+    /* Menu Screen */
+    .menu-icon {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    .menu-title {
+      font-size: 24px;
+      color: #22d3ee;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+      margin-bottom: 5px;
+    }
+    
+    .menu-subtitle {
+      font-size: 14px;
+      color: #94a3b8;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    
+    .info-box {
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .info-box-title {
+      color: #22d3ee;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .info-box-content {
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .score-box {
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .score-box.correct {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .score-box.wrong {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .score-box-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .score-box.correct .score-box-value { color: #22c55e; }
+    .score-box.wrong .score-box-value { color: #ef4444; }
+    
+    .score-box-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+    
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 10px;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+      color: #0f172a;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+    
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    /* Question Screen */
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .question-type {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 11px;
+    }
+    
+    .question-type.mc {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    
+    .question-type.tf {
+      background: rgba(168, 85, 247, 0.2);
+      color: #a78bfa;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+    
+    .question-topic {
+      color: #64748b;
+      font-size: 11px;
+    }
+    
+    .question-text {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      color: #e2e8f0;
+    }
+    
+    /* Answer Options */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .option-btn {
+      background: rgba(51, 65, 85, 0.5);
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 14px 15px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+    }
+    
+    .option-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+    
+    .option-btn.selected {
+      background: rgba(34, 211, 238, 0.2);
+      border-color: #22d3ee;
+    }
+    
+    .option-btn.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+    }
+    
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
+    
+    .option-btn:disabled {
+      cursor: default;
+    }
+    
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(34, 211, 238, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #22d3ee;
+      flex-shrink: 0;
+    }
+    
+    .option-letter.true {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+    
+    .option-letter.false {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    
+    /* Feedback Box */
+    .feedback {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+    }
+    
+    .feedback.correct {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .feedback.wrong {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .feedback-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .feedback.correct .feedback-title { color: #22c55e; }
+    .feedback.wrong .feedback-title { color: #ef4444; }
+    
+    .feedback-explanation {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    
+    .feedback-tip {
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #fbbf24;
+      font-size: 13px;
+    }
+    
+    .feedback-tip strong {
+      color: #fcd34d;
+    }
+    
+    /* Navigation */
+    .nav-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .nav-buttons .btn {
+      margin-bottom: 0;
+    }
+    
+    .btn-next {
+      flex: 1;
+    }
+    
+    .btn-menu {
+      padding: 15px 20px;
+    }
+    
+    /* Stats Screen */
+    .stats-title {
+      font-size: 20px;
+      color: #22d3ee;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    
+    .stats-box {
+      border-radius: 8px;
+      padding: 18px;
+      text-align: center;
+    }
+    
+    .stats-box.green {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .stats-box.green .stats-box-value { color: #22c55e; }
+    
+    .stats-box.red {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .stats-box.red .stats-box-value { color: #ef4444; }
+    
+    .stats-box.yellow {
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    .stats-box.yellow .stats-box-value { color: #fbbf24; }
+    
+    .stats-box.orange {
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+    .stats-box.orange .stats-box-value { color: #f97316; }
+    
+    .stats-box-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .stats-box-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    
+    .topic-title {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .topic-list {
+      background: rgba(51, 65, 85, 0.3);
+      border-radius: 8px;
+      padding: 10px 15px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    
+    .topic-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    
+    .topic-item:last-child {
+      border-bottom: none;
+    }
+    
+    .topic-name {
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+    
+    .topic-score {
+      font-size: 13px;
+    }
+    
+    .topic-score.good { color: #22c55e; }
+    .topic-score.medium { color: #fbbf24; }
+    .topic-score.bad { color: #ef4444; }
+    
+    .empty-stats {
+      color: #64748b;
+      text-align: center;
+      padding: 25px;
+      font-size: 14px;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: #475569;
+      font-size: 11px;
+      margin-top: 20px;
+    }
+    
+    /* Hide screens */
+    .screen {
+      display: none;
+    }
+    
+    .screen.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header Stats Bar -->
+    <div class="header">
+      <div class="stat">
+        <div class="stat-label">RANK</div>
+        <div class="stat-value stat-rank" id="header-rank">🔰 Rookie</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">XP</div>
+        <div class="stat-value stat-xp" id="header-xp">⚡ 0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">STREAK</div>
+        <div class="stat-value stat-streak" id="header-streak">🔥 0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">ACC</div>
+        <div class="stat-value stat-accuracy" id="header-accuracy">0%</div>
+      </div>
+    </div>
+    
+    <!-- Menu Screen -->
+    <div class="card screen active" id="menu-screen">
+      <div class="menu-icon">🛡️</div>
+      <h1 class="menu-title">CYBER SECURITY</h1>
+      <p class="menu-subtitle">Final Exam Practice Terminal</p>
+      
+      <div class="info-box">
+        <div class="info-box-title">📋 Coverage: Lectures 6-11</div>
+        <div class="info-box-content">
+          • DoS Attacks & Flooding<br>
+          • Database Security & SQL Injection<br>
+          • Intruders & Skill Levels<br>
+          • IDS/IPS & Detection Methods<br>
+          • OS Security & Hardening<br>
+          • Network Protocols & Firewalls
+        </div>
+      </div>
+      
+      <div class="score-grid">
+        <div class="score-box correct">
+          <div class="score-box-value" id="menu-correct">0</div>
+          <div class="score-box-label">Correct</div>
+        </div>
+        <div class="score-box wrong">
+          <div class="score-box-value" id="menu-wrong">0</div>
+          <div class="score-box-label">Wrong</div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="startGame()">🎮 START TRAINING</button>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showStats()">📊 Stats</button>
+        <button class="btn btn-secondary" onclick="resetStats()">🔄 Reset</button>
+      </div>
+    </div>
+    
+    <!-- Question Screen -->
+    <div class="card screen" id="question-screen">
+      <div class="question-header">
+        <span class="question-type" id="q-type">📝 Multiple Choice</span>
+        <span class="question-topic" id="q-topic">Topic: DoS</span>
+      </div>
+      
+      <div class="question-text" id="q-text">
+        Question text goes here...
+      </div>
+      
+      <div class="options" id="q-options">
+        <!-- Options will be inserted here -->
+      </div>
+      
+      <div class="feedback" id="feedback" style="display: none;">
+        <div class="feedback-title" id="feedback-title">✅ Correct!</div>
+        <div class="feedback-explanation" id="feedback-explanation">
+          Explanation goes here...
+        </div>
+        <div class="feedback-tip" id="feedback-tip">
+          💡 <strong>Memory Tip:</strong> Tip goes here...
+        </div>
+      </div>
+      
+      <div class="nav-buttons" id="nav-buttons">
+        <button class="btn btn-primary btn-next" id="next-btn" style="display: none;" onclick="nextQuestion()">Next Question →</button>
+        <button class="btn btn-secondary btn-menu" onclick="showMenu()">🏠</button>
+      </div>
+    </div>
+    
+    <!-- Stats Screen -->
+    <div class="card screen" id="stats-screen">
+      <h2 class="stats-title">📊 Performance Statistics</h2>
+      
+      <div class="stats-grid">
+        <div class="stats-box green">
+          <div class="stats-box-value" id="stats-correct">0</div>
+          <div class="stats-box-label">Total Correct</div>
+        </div>
+        <div class="stats-box red">
+          <div class="stats-box-value" id="stats-wrong">0</div>
+          <div class="stats-box-label">Total Wrong</div>
+        </div>
+        <div class="stats-box yellow">
+          <div class="stats-box-value" id="stats-xp">0</div>
+          <div class="stats-box-label">Total XP</div>
+        </div>
+        <div class="stats-box orange">
+          <div class="stats-box-value" id="stats-best-streak">0</div>
+          <div class="stats-box-label">Best Streak</div>
+        </div>
+      </div>
+      
+      <div class="topic-title">📚 Performance by Topic</div>
+      <div class="topic-list" id="topic-list">
+        <div class="empty-stats">No topic data yet. Start practicing!</div>
+      </div>
+      
+      <button class="btn btn-primary" style="margin-top: 20px;" onclick="showMenu()">← Back to Menu</button>
+    </div>
+    
+    <div class="footer">
+      Cyber Security Final Exam Practice • Lectures 6-11 • 50 Questions
+    </div>
+  </div>
+
+  <script>
+    // Question Bank - 50 Questions
+    const questionBank = [
+      // === CHAPTER 6: DoS Attacks (Questions 1-10) ===
+      { id: 1, type: 'mc', topic: 'DoS Attacks', question: '_________________ A malicious action that prevents the use of systems, networks, or applications by exhausting resources such as central processing units (CPU), memory, bandwidth, and disk space to make it unavailable.', options: ['Flood Attack', 'Denial-of-Service (DoS)', 'Virus', 'Botnet'], correct: 2, explanation: 'DoS (Denial-of-Service) attacks specifically aim to make systems unavailable by exhausting resources.', tip: 'DoS = "Denial of Service" - denying legitimate users access to services.' },
+      
+      { id: 2, type: 'mc', topic: 'DoS Attacks', question: '_________________ The attacker sends a network packet (Ping) with a spoofed source address to a service running on some network server. The server responds to this packet, sending it to the spoofed source address that belongs to the actual attack target (Victim).', options: ['Ping Flood Attack', 'UDP Flood Attacks', 'Smurf Attack', 'SYN Flood Attack'], correct: 3, explanation: 'Smurf Attack uses spoofed ping requests - the victim receives all the replies from the broadcast.', tip: 'Smurf = Spoofed source address + broadcast amplification.' },
+      
+      { id: 3, type: 'mc', topic: 'DoS Attacks', question: '_________________ An attacker attempts to flood the server by sending too many ICMP echo request packets (pings) in order to slow or stop legitimate traffic going through the network.', options: ['Ping Flood Attack', 'SYN Flood Attack', 'UDP Flood Attack', 'Smurf Attack'], correct: 1, explanation: 'Ping Flood Attack overwhelms with ICMP echo requests (pings).', tip: 'ICMP echo request = Ping. Too many pings = Ping Flood.' },
+      
+      { id: 4, type: 'mc', topic: 'DoS Attacks', question: '_________________ Attacker initiates multiple TCP sessions but never completes the 3-way handshake, leaving connections half-open.', options: ['Ping Flood Attack', 'SYN Flood Attack', 'UDP Flood Attack', 'Smurf Attack'], correct: 2, explanation: 'SYN Flood exploits TCP\'s 3-way handshake by sending SYN packets but never completing with ACK.', tip: 'SYN is the first step of TCP handshake. SYN Flood = incomplete handshakes.' },
+      
+      { id: 5, type: 'mc', topic: 'DoS Attacks', question: '_________________ A common attack which exploits UDP, it simply floods the network with UDP packets destined to a victim\'s host.', options: ['Ping Flood Attack', 'SYN Flood Attack', 'UDP Flood Attack', 'DNS Attack'], correct: 3, explanation: 'UDP Flood sends massive amounts of UDP packets to overwhelm the target.', tip: 'UDP = connectionless, so easy to flood without handshakes.' },
+      
+      { id: 6, type: 'tf', topic: 'DoS Attacks', question: 'UDP (User Datagram Protocol) is a standard that defines how to establish and maintain a network conversation via which application programs exchange data.', correct: 2, explanation: 'FALSE - This describes TCP, not UDP. UDP is connectionless and unreliable - it doesn\'t establish conversations or wait for confirmations.', tip: 'TCP = Conversation (3-way handshake), UDP = Just sends without waiting.' },
+      
+      { id: 7, type: 'tf', topic: 'DoS Attacks', question: 'Web and e-mail servers can only handle a finite amount of traffic and an attacker overloads the targeted system with packets of data to create a DoS attack.', correct: 1, explanation: 'TRUE - Servers have limited capacity. Overwhelming them with traffic causes denial of service to legitimate users.', tip: 'All servers have limits - DoS attacks exploit these limits.' },
+      
+      { id: 8, type: 'tf', topic: 'DoS Attacks', question: 'TCP uses three-way handshake to establish a connection session.', correct: 1, explanation: 'TRUE - TCP uses SYN → SYN-ACK → ACK to establish reliable connections.', tip: 'TCP 3-way: SYN, SYN-ACK, ACK - like a formal greeting.' },
+      
+      { id: 9, type: 'mc', topic: 'DoS Attacks', question: '_________________ An attack attempt to crash, reboot, or freeze a system by sending an oversized and malformed packet to another computer or server.', options: ['Smurf Attack', 'Ping of Death Attack', 'DNS Attack', 'SYN Flood Attack'], correct: 2, explanation: 'Ping of Death sends oversized/malformed packets to crash systems.', tip: 'Ping of DEATH = deadly oversized ping packets.' },
+      
+      { id: 10, type: 'mc', topic: 'DoS Attacks', question: 'In DoS Resource Attacks, which category aims to overload or crash the system sources or network handling software?', options: ['Application resources', 'Network bandwidth', 'System resources', 'User resources'], correct: 3, explanation: 'System resources attacks target the OS and network handling software directly.', tip: 'System resources = CPU, memory, OS-level components.' },
+
+      // === CHAPTER 7: Database Security & SQLi (Questions 11-22) ===
+      { id: 11, type: 'mc', topic: 'Database Security', question: 'The most common database query language used to define schema, manipulate, and query data in a relational database is:', options: ['NoSQL', 'MongoDB Query', 'Structured Query Language (SQL)', 'GraphQL'], correct: 3, explanation: 'SQL (Structured Query Language) is the standard for relational databases.', tip: 'SQL = Structured Query Language - the universal database language.' },
+      
+      { id: 12, type: 'mc', topic: 'SQLi Attacks', question: 'In the SQL Injection Attack Avenues, _________________ attackers inject SQL commands by providing suitably crafted user input through web forms.', options: ['Second-order SQLi', 'Cookies SQLi', 'User-input SQLi', 'Physical user input SQLi'], correct: 3, explanation: 'User-input SQLi is the most common avenue - attackers craft malicious input in web forms.', tip: 'User input = forms, search boxes, login fields - anywhere you type.' },
+      
+      { id: 13, type: 'mc', topic: 'SQLi Attacks', question: 'In SQLi Attack Avenues, _________________ relies on data already present in the system to trigger an attack, so the malicious input comes from within the system itself.', options: ['User-input SQLi', 'Second-order SQLi', 'Cookies SQLi', 'Physical user input SQLi'], correct: 2, explanation: 'Second-order SQLi uses data already stored in the database to trigger attacks later.', tip: 'Second-order = attack happens on the SECOND use of the data.' },
+      
+      { id: 14, type: 'mc', topic: 'SQLi Attacks', question: 'In SQLi Attack Avenues, when a client returns to a Web application, _________________ can be used to restore the client\'s state information and can be altered to modify SQL queries.', options: ['User-input SQLi', 'Second-order SQLi', 'Cookies SQLi', 'Physical user input SQLi'], correct: 3, explanation: 'Cookies store session data and can be manipulated to inject SQL commands.', tip: 'Cookies = stored data that travels with your browser.' },
+      
+      { id: 15, type: 'mc', topic: 'SQLi Attacks', question: 'In SQLi Attack Avenues, _________________ involves input outside web requests, such as barcodes, RFID tags, or scanned paper forms.', options: ['User-input SQLi', 'Second-order SQLi', 'Cookies SQLi', 'Physical user input SQLi'], correct: 4, explanation: 'Physical user input SQLi comes from physical sources like barcodes and RFID tags.', tip: 'Physical = tangible objects like barcodes, RFID, scanned documents.' },
+      
+      { id: 16, type: 'mc', topic: 'SQLi Types', question: 'SQL Injection Attacks Type: _________________ uses the same communication channel for injecting SQL code and retrieving results, with data presented directly in the application Web page.', options: ['Inband Attack', 'Inferential Attack', 'Out-of-band Attack', 'Blind Attack'], correct: 1, explanation: 'Inband attacks use the same channel (web page) to inject and see results.', tip: 'Inband = IN the same BAND/channel - see results directly on page.' },
+      
+      { id: 17, type: 'mc', topic: 'SQLi Types', question: 'SQL Injection Attacks Type: _________________ Attacker is able to reconstruct and modify the Database information by sending legitimate SQL requests and observing the resulting behavior of the database server.', options: ['Inband Attack', 'Inferential Attack', 'Out-of-band Attack', 'Direct Attack'], correct: 2, explanation: 'Inferential attacks infer database structure by observing server behavior (true/false responses).', tip: 'Inferential = INFER information from yes/no responses.' },
+      
+      { id: 18, type: 'mc', topic: 'SQLi Countermeasures', question: 'In SQLi Countermeasure Detection, _________________ techniques involve using a test suite to detect SQLi vulnerabilities by generating attacks and assessing system response.', options: ['Anomaly based detection', 'Code analysis detection', 'Signature based detection', 'Runtime detection'], correct: 2, explanation: 'Code analysis uses test suites to probe for vulnerabilities during development.', tip: 'Code analysis = testing the CODE with various attack patterns.' },
+      
+      { id: 19, type: 'tf', topic: 'Database Security', question: 'Role-based access control (RBAC) is a natural fit for database access control.', correct: 1, explanation: 'TRUE - RBAC allows defining permissions based on roles, making database access management easier and more secure.', tip: 'RBAC = assign roles (admin, user, guest) with specific permissions.' },
+      
+      { id: 20, type: 'mc', topic: 'Database Access', question: 'In Database Access Control, _________________ allows a small number of privileged users to grant and revoke access rights to other users.', options: ['Ownership-based administration', 'Decentralized administration', 'Centralized administration', 'Role-based administration'], correct: 3, explanation: 'Centralized administration concentrates control with a few privileged administrators.', tip: 'Centralized = one central authority controls access.' },
+      
+      { id: 21, type: 'mc', topic: 'SQL Access', question: 'Which SQL command is used to grant one or more access rights or assign a user to a role?', options: ['SELECT', 'GRANT', 'REVOKE', 'INSERT'], correct: 2, explanation: 'GRANT is used to give permissions; REVOKE removes them.', tip: 'GRANT = give access, REVOKE = take away access.' },
+      
+      { id: 22, type: 'tf', topic: 'Database Security', question: 'Database encryption is typically the first line of defense in database security.', correct: 2, explanation: 'FALSE - Encryption is the LAST line of defense, after firewalls, authentication, and access controls.', tip: 'Encryption = last resort when other defenses fail.' },
+
+      // === CHAPTER 8: Intruders & IDS (Questions 23-34) ===
+      { id: 23, type: 'mc', topic: 'Intruders', question: 'In the classes of intruders, _________________ are individuals or members of an organized crime group with a goal of financial reward.', options: ['Activists', 'Cyber criminals', 'State-Sponsored Organizations', 'Others'], correct: 2, explanation: 'Cyber criminals are motivated by financial gain through theft, ransomware, etc.', tip: 'Cyber CRIMINALS = motivated by CRIME for money.' },
+      
+      { id: 24, type: 'mc', topic: 'Intruders', question: 'In the classes of intruders, _________________ are motivated by social or political causes and are also known as hacktivists.', options: ['Activists', 'Cyber criminals', 'State-Sponsored Organizations', 'Others'], correct: 1, explanation: 'Activists (hacktivists) hack for political or social causes, not money.', tip: 'Activist = ACTing on beliefs, Hacktivist = hacking + activist.' },
+      
+      { id: 25, type: 'mc', topic: 'Intruder Skill Levels', question: 'In Intruder Skill Levels, _________________ are hackers with minimal technical skill who primarily use existing attack toolkits, also known as "script-kiddies".', options: ['Apprentice', 'Journeyman', 'Master', 'Expert'], correct: 1, explanation: 'Apprentices use pre-made tools without deep understanding - easiest to defend against.', tip: 'Apprentice = beginner using others\' scripts (script-kiddie).' },
+      
+      { id: 26, type: 'mc', topic: 'Intruder Skill Levels', question: 'In Intruder Skill Levels, _________________ are hackers with sufficient technical skills to modify and extend attack toolkits to use on newly discovered vulnerabilities.', options: ['Apprentice', 'Journeyman', 'Master', 'Novice'], correct: 2, explanation: 'Journeymen can modify existing tools and find new vulnerabilities.', tip: 'Journeyman = middle level, can ADAPT and MODIFY tools.' },
+      
+      { id: 27, type: 'mc', topic: 'Intruder Skill Levels', question: 'In Intruder Skill Levels, _________________ are hackers with high-level technical skills capable of discovering brand new categories of vulnerabilities and creating powerful attack toolkits.', options: ['Apprentice', 'Journeyman', 'Master', 'Intermediate'], correct: 3, explanation: 'Masters discover new vulnerability types and create tools others use.', tip: 'Master = CREATES new attacks, hardest to defend against.' },
+      
+      { id: 28, type: 'mc', topic: 'IDS', question: 'An IDS comprises three logical components: Sensors, Analyzers, and:', options: ['Firewalls', 'User Interface', 'Encryption modules', 'Routers'], correct: 2, explanation: 'IDS has Sensors (collect data), Analyzers (detect intrusions), and User Interface (view/control).', tip: 'IDS = Sensors + Analyzers + User Interface (SAU).' },
+      
+      { id: 29, type: 'mc', topic: 'IDS Classification', question: '_________________ monitors the characteristics of a single host and the events occurring within that host.', options: ['Network-based IDS (NIDS)', 'Host-based IDS (HIDS)', 'Distributed IDS', 'Hybrid IDS'], correct: 2, explanation: 'HIDS monitors a single host - its files, processes, and system calls.', tip: 'HIDS = Host-based = monitors ONE computer/host.' },
+      
+      { id: 30, type: 'mc', topic: 'IDS Classification', question: '_________________ monitors network traffic and analyzes network, transport, and application protocols to identify suspicious activity.', options: ['Network-based IDS (NIDS)', 'Host-based IDS (HIDS)', 'File-based IDS', 'Application IDS'], correct: 1, explanation: 'NIDS monitors network traffic across the entire network segment.', tip: 'NIDS = Network-based = monitors network TRAFFIC.' },
+      
+      { id: 31, type: 'tf', topic: 'IDS', question: 'Network-Based IDS (NIDS) can use only signature/heuristic analysis approaches.', correct: 2, explanation: 'FALSE - NIDS can use BOTH signature/heuristic AND anomaly detection approaches.', tip: 'NIDS uses BOTH methods - signature AND anomaly detection.' },
+      
+      { id: 32, type: 'tf', topic: 'IDS', question: 'Network-Based Intrusion Detection (NIDS) examines user and software activity on a host.', correct: 2, explanation: 'FALSE - This describes HIDS. NIDS examines NETWORK traffic, not host activity.', tip: 'NIDS = Network traffic, HIDS = Host activity.' },
+      
+      { id: 33, type: 'mc', topic: 'IDS Analysis', question: 'In IDS Analysis Approaches, _________________ involves analyzing current observed behavior to determine whether it\'s legitimate user behavior or an intruder.', options: ['Signature detection', 'Anomaly detection', 'Heuristic detection', 'Pattern matching'], correct: 2, explanation: 'Anomaly detection builds a baseline of normal behavior and flags deviations.', tip: 'Anomaly = ABNORMAL behavior compared to baseline.' },
+      
+      { id: 34, type: 'mc', topic: 'IDS Analysis', question: 'In IDS Analysis Approaches, _________________ uses a set of known malicious data patterns or attack rules and compares them with current behavior.', options: ['Anomaly detection', 'Signature/Heuristic detection', 'Behavioral detection', 'Statistical detection'], correct: 2, explanation: 'Signature detection matches known attack patterns - can only detect known attacks.', tip: 'Signature = looking for known attack SIGNATURES/patterns.' },
+
+      // === LECTURE 9: OS Security & Hardening (Questions 35-42) ===
+      { id: 35, type: 'mc', topic: 'OS Security', question: '_________________ is software that manages computer hardware and system resources and provides the tools that applications need to operate.', options: ['Application Software', 'Operating System (OS)', 'Firmware', 'Middleware'], correct: 2, explanation: 'The Operating System manages hardware, resources, and provides the platform for applications.', tip: 'OS = the foundation that manages everything else.' },
+      
+      { id: 36, type: 'mc', topic: 'OS Security', question: '_________________ is the heart of the operating system, first program loaded when computer starts, and manages computer resources.', options: ['Shell', 'Kernel', 'BIOS', 'Bootloader'], correct: 2, explanation: 'The Kernel is the core of the OS - loaded first and controls everything.', tip: 'Kernel = core/heart of OS, like a seed (kernel) is core of a nut.' },
+      
+      { id: 37, type: 'mc', topic: 'OS Hardening', question: '_________________ is the act of configuring an operating system securely by updating it, creating rules and policies, and removing unnecessary applications and services.', options: ['Patching', 'Hardening', 'Encrypting', 'Virtualizing'], correct: 2, explanation: 'Hardening makes the OS more secure by reducing the attack surface.', tip: 'Hardening = making the system HARD to attack.' },
+      
+      { id: 38, type: 'mc', topic: 'Updates', question: 'In Windows OS Categories of Updates, _________________ is software code (Patch) that is issued for a product-specific security-related vulnerability.', options: ['Critical Update', 'Security Update', 'Service Pack', 'Driver Update'], correct: 2, explanation: 'Security Updates fix security vulnerabilities specifically.', tip: 'Security Update = fixes SECURITY holes.' },
+      
+      { id: 39, type: 'mc', topic: 'Updates', question: 'In Windows OS Categories of Updates, _________________ is a tested, cumulative grouping of patches, including security updates, critical updates, and possibly feature changes.', options: ['Critical Update', 'Security Update', 'Service Pack', 'Windows Update'], correct: 3, explanation: 'Service Packs bundle multiple updates together in one large package.', tip: 'Service Pack = big PACK of many updates bundled together.' },
+      
+      { id: 40, type: 'tf', topic: 'OS Security', question: 'Application programs (like MS Office, browsers) are part of the operating system.', correct: 2, explanation: 'FALSE - Application programs are NOT part of the OS. They run ON TOP of the OS.', tip: 'Apps run on the OS, they\'re not part of it.' },
+      
+      { id: 41, type: 'mc', topic: 'Trusted OS', question: 'A Trusted Operating System must routinely receive _________________ from manufacturers to maintain security.', options: ['Hardware upgrades', 'Patches and Updates', 'New licenses', 'Network connections'], correct: 2, explanation: 'Trusted OS status requires ongoing patches and updates to stay secure.', tip: 'Trust requires constant maintenance through patches.' },
+      
+      { id: 42, type: 'tf', topic: 'OS Hardening', question: 'The first critical step in securing any system is to secure the base operating system.', correct: 1, explanation: 'TRUE - You must secure the OS foundation before anything else can be truly secure.', tip: 'Secure foundation first, then build on top.' },
+
+      // === LECTURE 10: SDLC & Software Security (Questions 43-46) ===
+      { id: 43, type: 'mc', topic: 'SDLC', question: 'SDLC (Software Development Life Cycle) is a framework that defines the steps involved in development of software. Developers should always remember confidentiality, integrity, and:', options: ['Authentication', 'Availability', 'Authorization', 'Accountability'], correct: 2, explanation: 'CIA Triad: Confidentiality, Integrity, Availability - the core security principles.', tip: 'CIA = Confidentiality, Integrity, Availability.' },
+      
+      { id: 44, type: 'mc', topic: 'Race Conditions', question: '_________________ occur when there is overlapping access, use, and replacement of shared values between processes.', options: ['Buffer Overflows', 'Race Conditions', 'SQL Injections', 'Memory Leaks'], correct: 2, explanation: 'Race Conditions happen when multiple processes compete for the same resource.', tip: 'Race = processes RACING to access shared resources.' },
+      
+      { id: 45, type: 'mc', topic: 'Race Conditions', question: 'To prevent race conditions, the most common technique is to acquire a _________________ on the shared file until the process is finished.', options: ['Password', 'Lock', 'Key', 'Token'], correct: 2, explanation: 'Lockfiles prevent multiple processes from accessing the same resource simultaneously.', tip: 'Lock the resource so others must wait their turn.' },
+      
+      { id: 46, type: 'mc', topic: 'Privilege', question: '_________________ refers to actions taken on a system to increase the privileges available to the attacker to enable their desired goals.', options: ['Privilege escalation', 'Access control', 'Authentication bypass', 'Session hijacking'], correct: 1, explanation: 'Privilege escalation = gaining higher access levels than authorized.', tip: 'Escalation = climbing UP the privilege ladder.' },
+
+      // === LECTURE 11: Network Security (Questions 47-50) ===
+      { id: 47, type: 'mc', topic: 'Protocols', question: '_________________ is a standard that defines how to establish and maintain a network conversation via which application programs exchange data, using three-way handshake.', options: ['UDP', 'TCP', 'ICMP', 'FTP'], correct: 2, explanation: 'TCP (Transmission Control Protocol) uses 3-way handshake for reliable connections.', tip: 'TCP = reliable, connection-oriented with 3-way handshake.' },
+      
+      { id: 48, type: 'mc', topic: 'Security Protocols', question: '_________________ are cryptographic protocols to protect communication between a web client (Browser) and web server, providing encryption and authentication.', options: ['HTTP/HTTPS', 'SSL/TLS', 'FTP/SFTP', 'DNS/DNSSEC'], correct: 2, explanation: 'SSL/TLS encrypts web traffic and authenticates servers.', tip: 'SSL/TLS = Secure Socket Layer / Transport Layer Security = HTTPS encryption.' },
+      
+      { id: 49, type: 'mc', topic: 'Firewalls', question: 'A _________________ is an effective means of protecting LANs, inserted between the premises network and the Internet to establish a controlled link.', options: ['Router', 'Switch', 'Firewall', 'Hub'], correct: 3, explanation: 'Firewalls filter traffic between internal networks and the Internet.', tip: 'Firewall = wall of fire protecting your network perimeter.' },
+      
+      { id: 50, type: 'tf', topic: 'IPS', question: 'Host-Based IPS (HIPS) can make use of either signature/heuristic or anomaly detection techniques to identify attacks.', correct: 1, explanation: 'TRUE - HIPS uses both detection methods to identify malicious behavior on a host.', tip: 'HIPS = flexible, uses multiple detection approaches.' }
+    ];
+
+    // Game State
+    let stats = {
+      totalCorrect: 0,
+      totalWrong: 0,
+      streak: 0,
+      bestStreak: 0,
+      xp: 0,
+      topicStats: {}
+    };
+    
+    let usedQuestions = [];
+    let currentQuestion = null;
+    let selectedAnswer = null;
+    let showingFeedback = false;
+
+    // Rank System
+    function getRank(correct, total) {
+      const percentage = total > 0 ? (correct / total) * 100 : 0;
+      if (total < 5) return { name: 'Rookie', emoji: '🔰', color: '#6b7280' };
+      if (percentage >= 95) return { name: 'Legend', emoji: '👑', color: '#fbbf24' };
+      if (percentage >= 90) return { name: 'Master', emoji: '🏆', color: '#f59e0b' };
+      if (percentage >= 85) return { name: 'Elite', emoji: '🛡️', color: '#8b5cf6' };
+      if (percentage >= 80) return { name: 'Senior', emoji: '⭐', color: '#3b82f6' };
+      if (percentage >= 75) return { name: 'Specialist', emoji: '🔐', color: '#06b6d4' };
+      if (percentage >= 70) return { name: 'Officer', emoji: '🎖️', color: '#10b981' };
+      if (percentage >= 65) return { name: 'Guardian', emoji: '🌐', color: '#22c55e' };
+      if (percentage >= 60) return { name: 'Junior', emoji: '📊', color: '#84cc16' };
+      if (percentage >= 50) return { name: 'Trainee', emoji: '📚', color: '#eab308' };
+      return { name: 'Rookie', emoji: '🔰', color: '#6b7280' };
+    }
+
+    // Load stats from localStorage
+    function loadStats() {
+      try {
+        const saved = localStorage.getItem('cyber-quiz-stats');
+        if (saved) {
+          stats = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.log('No saved stats found');
+      }
+      updateUI();
+    }
+
+    // Save stats to localStorage
+    function saveStats() {
+      try {
+        localStorage.setItem('cyber-quiz-stats', JSON.stringify(stats));
+      } catch (e) {
+        console.error('Failed to save stats:', e);
+      }
+    }
+
+    // Update all UI elements
+    function updateUI() {
+      const total = stats.totalCorrect + stats.totalWrong;
+      const percentage = total > 0 ? Math.round((stats.totalCorrect / total) * 100) : 0;
+      const rank = getRank(stats.totalCorrect, total);
+      
+      // Header
+      document.getElementById('header-rank').textContent = rank.emoji + ' ' + rank.name;
+      document.getElementById('header-rank').style.color = rank.color;
+      document.getElementById('header-xp').textContent = '⚡ ' + stats.xp;
+      document.getElementById('header-streak').textContent = '🔥 ' + stats.streak;
+      document.getElementById('header-accuracy').textContent = percentage + '%';
+      document.getElementById('header-accuracy').className = 'stat-value stat-accuracy' + (percentage < 70 ? ' low' : '');
+      
+      // Menu
+      document.getElementById('menu-correct').textContent = stats.totalCorrect;
+      document.getElementById('menu-wrong').textContent = stats.totalWrong;
+      
+      // Stats screen
+      document.getElementById('stats-correct').textContent = stats.totalCorrect;
+      document.getElementById('stats-wrong').textContent = stats.totalWrong;
+      document.getElementById('stats-xp').textContent = stats.xp;
+      document.getElementById('stats-best-streak').textContent = stats.bestStreak;
+      
+      // Topic list
+      const topicList = document.getElementById('topic-list');
+      const topics = Object.entries(stats.topicStats);
+      if (topics.length === 0) {
+        topicList.innerHTML = '<div class="empty-stats">No topic data yet. Start practicing!</div>';
+      } else {
+        topicList.innerHTML = topics.map(([topic, data]) => {
+          const topicPercent = Math.round((data.correct / (data.correct + data.wrong)) * 100);
+          let scoreClass = 'good';
+          if (topicPercent < 50) scoreClass = 'bad';
+          else if (topicPercent < 70) scoreClass = 'medium';
+          return `
+            <div class="topic-item">
+              <span class="topic-name">${topic}</span>
+              <span class="topic-score ${scoreClass}">${data.correct}/${data.correct + data.wrong} (${topicPercent}%)</span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Show/hide screens
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showMenu() {
+      showScreen('menu-screen');
+      updateUI();
+    }
+
+    function showStats() {
+      showScreen('stats-screen');
+      updateUI();
+    }
+
+    // Get random question
+    function getRandomQuestion() {
+      let available = questionBank.filter(q => !usedQuestions.includes(q.id));
+      if (available.length === 0) {
+        usedQuestions = [];
+        available = questionBank;
+      }
+      const randomIndex = Math.floor(Math.random() * available.length);
+      return available[randomIndex];
+    }
+
+    // Start the game
+    function startGame() {
+      currentQuestion = getRandomQuestion();
+      selectedAnswer = null;
+      showingFeedback = false;
+      renderQuestion();
+      showScreen('question-screen');
+    }
+
+    // Render current question
+    function renderQuestion() {
+      const q = currentQuestion;
+      
+      // Type badge
+      const typeEl = document.getElementById('q-type');
+      if (q.type === 'mc') {
+        typeEl.textContent = '📝 Multiple Choice';
+        typeEl.className = 'question-type mc';
+      } else {
+        typeEl.textContent = '✓✗ True/False';
+        typeEl.className = 'question-type tf';
+      }
+      
+      // Topic
+      document.getElementById('q-topic').textContent = 'Topic: ' + q.topic;
+      
+      // Question text
+      document.getElementById('q-text').textContent = q.question;
+      
+      // Options
+      const optionsEl = document.getElementById('q-options');
+      if (q.type === 'mc') {
+        const letters = ['A', 'B', 'C', 'D'];
+        optionsEl.innerHTML = q.options.map((opt, i) => `
+          <button class="option-btn" data-value="${i + 1}" onclick="selectAnswer(${i + 1})">
+            <span class="option-letter">${letters[i]}</span>
+            ${opt}
+          </button>
+        `).join('');
+      } else {
+        optionsEl.innerHTML = `
+          <button class="option-btn" data-value="1" onclick="selectAnswer(1)">
+            <span class="option-letter true">1</span>
+            True
+          </button>
+          <button class="option-btn" data-value="2" onclick="selectAnswer(2)">
+            <span class="option-letter false">2</span>
+            False
+          </button>
+        `;
+      }
+      
+      // Hide feedback and next button
+      document.getElementById('feedback').style.display = 'none';
+      document.getElementById('next-btn').style.display = 'none';
+    }
+
+    // Handle answer selection
+    function selectAnswer(value) {
+      if (showingFeedback) return;
+      
+      selectedAnswer = value;
+      showingFeedback = true;
+      const isCorrect = value === currentQuestion.correct;
+      
+      // Mark used
+      usedQuestions.push(currentQuestion.id);
+      
+      // Update stats
+      if (isCorrect) {
+        stats.totalCorrect++;
+        stats.streak++;
+        stats.xp += 10 + (stats.streak * 2);
+        if (stats.streak > stats.bestStreak) {
+          stats.bestStreak = stats.streak;
+        }
+      } else {
+        stats.totalWrong++;
+        stats.streak = 0;
+      }
+      
+      // Topic stats
+      const topic = currentQuestion.topic;
+      if (!stats.topicStats[topic]) {
+        stats.topicStats[topic] = { correct: 0, wrong: 0 };
+      }
+      if (isCorrect) {
+        stats.topicStats[topic].correct++;
+      } else {
+        stats.topicStats[topic].wrong++;
+      }
+      
+      saveStats();
+      updateUI();
+      
+      // Update option styling
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        const btnValue = parseInt(btn.dataset.value);
+        if (btnValue === currentQuestion.correct) {
+          btn.classList.add('correct');
+        } else if (btnValue === selectedAnswer && !isCorrect) {
+          btn.classList.add('wrong');
+        }
+      });
+      
+      // Show feedback
+      const feedbackEl = document.getElementById('feedback');
+      feedbackEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+      feedbackEl.style.display = 'block';
+      
+      const xpGained = isCorrect ? 10 + (stats.streak * 2) : 0;
+      document.getElementById('feedback-title').textContent = isCorrect 
+        ? '✅ Correct! +' + xpGained + ' XP' 
+        : '❌ Incorrect';
+      document.getElementById('feedback-explanation').textContent = currentQuestion.explanation;
+      document.getElementById('feedback-tip').innerHTML = '💡 <strong>Memory Tip:</strong> ' + currentQuestion.tip;
+      
+      // Show next button
+      document.getElementById('next-btn').style.display = 'block';
+    }
+
+    // Next question
+    function nextQuestion() {
+      currentQuestion = getRandomQuestion();
+      selectedAnswer = null;
+      showingFeedback = false;
+      renderQuestion();
+    }
+
+    // Reset stats
+    function resetStats() {
+      if (confirm('Are you sure you want to reset all progress?')) {
+        stats = {
+          totalCorrect: 0,
+          totalWrong: 0,
+          streak: 0,
+          bestStreak: 0,
+          xp: 0,
+          topicStats: {}
+        };
+        usedQuestions = [];
+        saveStats();
+        updateUI();
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', loadStats);
+  </script>
+</body>
+</html>
