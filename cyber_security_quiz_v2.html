@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  <title>Cyber Security Quiz v2</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:'Courier New',monospace;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);min-height:100vh;color:#e2e8f0;padding:15px;padding-bottom:80px}
+    .container{max-width:600px;margin:0 auto}
+    .header{background:rgba(15,23,42,0.9);border:2px solid #22d3ee;border-radius:12px;padding:12px 15px;margin-bottom:15px;box-shadow:0 0 20px rgba(34,211,238,0.3)}
+    .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .level-badge{background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%);color:#0f172a;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold}
+    .rank-title{font-size:14px;color:#22d3ee}
+    .xp-bar-container{background:rgba(51,65,85,0.5);border-radius:10px;height:12px;overflow:hidden;margin-bottom:10px}
+    .xp-bar{background:linear-gradient(90deg,#22d3ee 0%,#3b82f6 50%,#8b5cf6 100%);height:100%;border-radius:10px;transition:width 0.5s ease}
+    .xp-text{font-size:10px;color:#94a3b8;text-align:center;margin-bottom:8px}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .stat{text-align:center}
+    .stat-label{font-size:9px;color:#64748b;margin-bottom:2px}
+    .stat-value{font-size:13px;font-weight:bold}
+    .stat-correct{color:#22c55e}.stat-wrong{color:#ef4444}.stat-streak{color:#f97316}.stat-accuracy{color:#22d3ee}
+    .level-up-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s}
+    .level-up-overlay.show{opacity:1;pointer-events:auto}
+    .level-up-content{text-align:center;animation:levelUpPulse 0.5s ease}
+    @keyframes levelUpPulse{0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+    .level-up-icon{font-size:80px;margin-bottom:20px}
+    .level-up-text{font-size:32px;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.5);margin-bottom:10px}
+    .level-up-rank{font-size:24px;color:#22d3ee;margin-bottom:20px}
+    .level-up-btn{background:linear-gradient(135deg,#22d3ee 0%,#3b82f6 100%);color:#0f172a;border:none;padding:12px 30px;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;font-family:inherit}
+    .achievement-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 100%);color:#0f172a;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:bold;z-index:999;transition:transform 0.3s ease;box-shadow:0 4px 20px rgba(251,191,36,0.4)}
+    .achievement-toast.show{transform:translateX(-50%) translateY(0)}
+    .card{background:rgba(15,23,42,0.9);border:2px solid #22d3ee;border-radius:16px;padding:25px 20px;box-shadow:0 0 40px rgba(34,211,238,0.2)}
+    .menu-icon{font-size:48px;text-align:center;margin-bottom:10px}
+    .menu-title{font-size:24px;color:#22d3ee;text-align:center;text-shadow:0 0 10px rgba(34,211,238,0.5);margin-bottom:5px}
+    .menu-subtitle{font-size:14px;color:#94a3b8;text-align:center;margin-bottom:25px}
+    .info-box{background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);border-radius:8px;padding:15px;margin-bottom:20px}
+    .info-box-title{color:#22d3ee;margin-bottom:8px;font-size:14px}
+    .info-box-content{color:#94a3b8;font-size:12px;line-height:1.8}
+    .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+    .score-box{border-radius:8px;padding:15px;text-align:center}
+    .score-box.correct{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3)}
+    .score-box.wrong{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}
+    .score-box-value{font-size:28px;font-weight:bold}
+    .score-box.correct .score-box-value{color:#22c55e}.score-box.wrong .score-box-value{color:#ef4444}
+    .score-box-label{font-size:12px;color:#64748b}
+    .btn{width:100%;padding:15px;border-radius:8px;font-size:16px;font-family:inherit;cursor:pointer;border:none;margin-bottom:10px;transition:transform 0.1s,opacity 0.1s}
+    .btn:active{transform:scale(0.98);opacity:0.9}
+    .btn-primary{background:linear-gradient(135deg,#22d3ee 0%,#3b82f6 100%);color:#0f172a;font-weight:bold;box-shadow:0 0 20px rgba(34,211,238,0.4)}
+    .btn-essay{background:linear-gradient(135deg,#8b5cf6 0%,#a855f7 100%);color:white;font-weight:bold;box-shadow:0 0 20px rgba(139,92,246,0.4)}
+    .btn-secondary{background:transparent;color:#94a3b8;border:1px solid #334155}
+    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mode-indicator{text-align:center;padding:8px;border-radius:8px;margin-bottom:15px;font-size:12px;font-weight:bold}
+    .mode-indicator.main{background:rgba(34,211,238,0.2);color:#22d3ee;border:1px solid rgba(34,211,238,0.3)}
+    .mode-indicator.essay{background:rgba(139,92,246,0.2);color:#a78bfa;border:1px solid rgba(139,92,246,0.3)}
+    .essay-topic-banner{background:linear-gradient(135deg,rgba(139,92,246,0.2) 0%,rgba(168,85,247,0.2) 100%);border:1px solid rgba(139,92,246,0.4);border-radius:8px;padding:12px 15px;margin-bottom:15px}
+    .essay-topic-label{font-size:10px;color:#a78bfa;margin-bottom:4px}
+    .essay-topic-title{font-size:13px;color:#e2e8f0;line-height:1.4}
+    .question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px}
+    .question-type{padding:5px 10px;border-radius:15px;font-size:11px}
+    .question-type.mc{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)}
+    .question-type.tf{background:rgba(168,85,247,0.2);color:#a78bfa;border:1px solid rgba(168,85,247,0.3)}
+    .question-topic{color:#64748b;font-size:11px}
+    .question-text{font-size:16px;line-height:1.6;margin-bottom:20px;color:#e2e8f0}
+    .options{display:flex;flex-direction:column;gap:10px}
+    .option-btn{background:rgba(51,65,85,0.5);border:2px solid #334155;border-radius:8px;padding:14px 15px;text-align:left;cursor:pointer;font-family:inherit;font-size:15px;color:#e2e8f0;display:flex;align-items:center;gap:12px;transition:all 0.15s}
+    .option-btn:active:not(:disabled){transform:scale(0.98)}
+    .option-btn.selected{background:rgba(34,211,238,0.2);border-color:#22d3ee}
+    .option-btn.correct{background:rgba(34,197,94,0.2);border-color:#22c55e}
+    .option-btn.wrong{background:rgba(239,68,68,0.2);border-color:#ef4444}
+    .option-btn:disabled{cursor:default}
+    .option-letter{width:28px;height:28px;border-radius:50%;background:rgba(34,211,238,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#22d3ee;flex-shrink:0}
+    .option-letter.true{background:rgba(34,197,94,0.2);color:#22c55e}
+    .option-letter.false{background:rgba(239,68,68,0.2);color:#ef4444}
+    .feedback{margin-top:20px;padding:15px;border-radius:12px}
+    .feedback.correct{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3)}
+    .feedback.wrong{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}
+    .feedback-title{font-size:18px;font-weight:bold;margin-bottom:10px}
+    .feedback.correct .feedback-title{color:#22c55e}.feedback.wrong .feedback-title{color:#ef4444}
+    .feedback-explanation{color:#94a3b8;line-height:1.6;margin-bottom:12px;font-size:14px}
+    .feedback-tip{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:8px;padding:10px 12px;color:#fbbf24;font-size:13px}
+    .feedback-tip strong{color:#fcd34d}
+    .nav-buttons{margin-top:20px;display:flex;gap:10px}
+    .nav-buttons .btn{margin-bottom:0}
+    .btn-next{flex:1}
+    .btn-menu{padding:15px 20px}
+    .stats-title{font-size:20px;color:#22d3ee;text-align:center;margin-bottom:20px}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:25px}
+    .stats-box{border-radius:8px;padding:18px;text-align:center}
+    .stats-box.green{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3)}
+    .stats-box.green .stats-box-value{color:#22c55e}
+    .stats-box.red{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)}
+    .stats-box.red .stats-box-value{color:#ef4444}
+    .stats-box.yellow{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3)}
+    .stats-box.yellow .stats-box-value{color:#fbbf24}
+    .stats-box.orange{background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3)}
+    .stats-box.orange .stats-box-value{color:#f97316}
+    .stats-box.purple{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3)}
+    .stats-box.purple .stats-box-value{color:#a78bfa}
+    .stats-box.cyan{background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3)}
+    .stats-box.cyan .stats-box-value{color:#22d3ee}
+    .stats-box-value{font-size:28px;font-weight:bold}
+    .stats-box-label{font-size:12px;color:#64748b;margin-top:4px}
+    .topic-title{color:#94a3b8;font-size:14px;margin-bottom:12px}
+    .topic-list{background:rgba(51,65,85,0.3);border-radius:8px;padding:10px 15px;max-height:200px;overflow-y:auto}
+    .topic-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(51,65,85,0.5)}
+    .topic-item:last-child{border-bottom:none}
+    .topic-name{color:#e2e8f0;font-size:13px}
+    .topic-score{font-size:13px}
+    .topic-score.good{color:#22c55e}.topic-score.medium{color:#fbbf24}.topic-score.bad{color:#ef4444}
+    .empty-stats{color:#64748b;text-align:center;padding:25px;font-size:14px}
+    .footer{text-align:center;color:#475569;font-size:11px;margin-top:20px}
+    .screen{display:none}
+    .screen.active{display:block}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="achievement-toast" id="achievement-toast">🏆 Achievement Unlocked!</div>
+    <div class="level-up-overlay" id="level-up-overlay">
+      <div class="level-up-content">
+        <div class="level-up-icon">🎉</div>
+        <div class="level-up-text">LEVEL UP!</div>
+        <div class="level-up-rank" id="level-up-rank">Level 5</div>
+        <button class="level-up-btn" onclick="closeLevelUp()">Continue</button>
+      </div>
+    </div>
+    <div class="header">
+      <div class="header-top">
+        <span class="level-badge" id="level-badge">LVL 1</span>
+        <span class="rank-title" id="rank-title">🔰 Rookie Agent</span>
+      </div>
+      <div class="xp-text" id="xp-text">0 / 100 XP to next level</div>
+      <div class="xp-bar-container"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-label">CORRECT</div><div class="stat-value stat-correct" id="header-correct">0</div></div>
+        <div class="stat"><div class="stat-label">WRONG</div><div class="stat-value stat-wrong" id="header-wrong">0</div></div>
+        <div class="stat"><div class="stat-label">STREAK</div><div class="stat-value stat-streak" id="header-streak">🔥 0</div></div>
+        <div class="stat"><div class="stat-label">ACC</div><div class="stat-value stat-accuracy" id="header-accuracy">0%</div></div>
+      </div>
+    </div>
+    <div class="card screen active" id="menu-screen">
+      <div class="menu-icon">🛡️</div>
+      <h1 class="menu-title">CYBER SECURITY</h1>
+      <p class="menu-subtitle">Final Exam Practice v2.0</p>
+      <div class="info-box">
+        <div class="info-box-title">📋 Lectures 6-11 Coverage</div>
+        <div class="info-box-content">• DoS Attacks & Flooding<br>• Database Security & SQLi<br>• Intruders & IDS/IPS<br>• OS Security & Hardening<br>• Virtualization & Firewalls</div>
+      </div>
+      <div class="score-grid">
+        <div class="score-box correct"><div class="score-box-value" id="menu-correct">0</div><div class="score-box-label">Correct</div></div>
+        <div class="score-box wrong"><div class="score-box-value" id="menu-wrong">0</div><div class="score-box-label">Wrong</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="startGame('main')">🎮 MAIN QUIZ (90 Q's)</button>
+      <button class="btn btn-essay" onclick="startGame('essay')">📝 ESSAY PREP (50 Q's)</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showStats()">📊 Stats</button>
+        <button class="btn btn-secondary" onclick="resetStats()">🔄 Reset</button>
+      </div>
+    </div>
+    <div class="card screen" id="question-screen">
+      <div class="mode-indicator main" id="mode-indicator">📚 MAIN QUIZ</div>
+      <div class="essay-topic-banner" id="essay-topic-banner" style="display:none">
+        <div class="essay-topic-label">ESSAY TOPIC</div>
+        <div class="essay-topic-title" id="essay-topic-title"></div>
+      </div>
+      <div class="question-header">
+        <span class="question-type" id="q-type">📝 MC</span>
+        <span class="question-topic" id="q-topic">Topic</span>
+      </div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+      <div class="feedback" id="feedback" style="display:none">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div class="feedback-explanation" id="feedback-explanation"></div>
+        <div class="feedback-tip" id="feedback-tip"></div>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn btn-primary btn-next" id="next-btn" style="display:none" onclick="nextQuestion()">Next →</button>
+        <button class="btn btn-secondary btn-menu" onclick="showMenu()">🏠</button>
+      </div>
+    </div>
+    <div class="card screen" id="stats-screen">
+      <h2 class="stats-title">📊 Statistics</h2>
+      <div class="stats-grid">
+        <div class="stats-box green"><div class="stats-box-value" id="stats-correct">0</div><div class="stats-box-label">Correct</div></div>
+        <div class="stats-box red"><div class="stats-box-value" id="stats-wrong">0</div><div class="stats-box-label">Wrong</div></div>
+        <div class="stats-box yellow"><div class="stats-box-value" id="stats-xp">0</div><div class="stats-box-label">XP</div></div>
+        <div class="stats-box purple"><div class="stats-box-value" id="stats-level">1</div><div class="stats-box-label">Level</div></div>
+      </div>
+      <div class="topic-title">📚 By Topic</div>
+      <div class="topic-list" id="topic-list"><div class="empty-stats">No data yet</div></div>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="showMenu()">← Back</button>
+    </div>
+    <div class="footer">Cyber Security Quiz v2.0 • 140 Questions</div>
+  </div>
+<script>
+// Question Banks
+const mainQ=[
+{id:1,type:'mc',topic:'DoS Attacks',question:'_________________ A malicious action that prevents the use of systems, networks, or applications by exhausting resources such as CPU, memory, bandwidth, and disk space.',options:['Flood Attack','Denial-of-Service (DoS)','Virus','Botnet'],correct:2,explanation:'DoS attacks make systems unavailable by exhausting resources.',tip:'DoS = Denial of Service'},
+{id:2,type:'mc',topic:'DoS Attacks',question:'_________________ The attacker sends a ping with a spoofed source address. The server responds to the spoofed address belonging to the victim.',options:['Ping Flood','UDP Flood','Smurf Attack','SYN Flood'],correct:3,explanation:'Smurf Attack uses spoofed ping requests with broadcast amplification.',tip:'Smurf = Spoofed + Amplification'},
+{id:3,type:'mc',topic:'DoS Attacks',question:'_________________ Attacker floods the server with ICMP echo request packets (pings).',options:['Ping Flood Attack','SYN Flood','UDP Flood','Smurf Attack'],correct:1,explanation:'Ping Flood uses ICMP echo requests.',tip:'Ping = ICMP echo request'},
+{id:4,type:'mc',topic:'DoS Attacks',question:'_________________ Attacker initiates multiple TCP sessions but never completes the 3-way handshake.',options:['Ping Flood','SYN Flood Attack','UDP Flood','Smurf Attack'],correct:2,explanation:'SYN Flood leaves connections half-open.',tip:'SYN = first step, never finished'},
+{id:5,type:'mc',topic:'DoS Attacks',question:'_________________ Floods the network with UDP packets destined to a victim.',options:['Ping Flood','SYN Flood','UDP Flood Attack','DNS Attack'],correct:3,explanation:'UDP Flood exploits connectionless UDP.',tip:'UDP = no handshake needed'},
+{id:6,type:'tf',topic:'DoS Attacks',question:'UDP is a standard that defines how to establish and maintain a network conversation via which application programs exchange data.',correct:2,explanation:'FALSE - This describes TCP. UDP is connectionless.',tip:'TCP = conversation, UDP = just sends'},
+{id:7,type:'tf',topic:'DoS Attacks',question:'Web and e-mail servers can only handle a finite amount of traffic and DoS attacks exploit this.',correct:1,explanation:'TRUE - Servers have limited capacity.',tip:'All servers have limits'},
+{id:8,type:'tf',topic:'DoS Attacks',question:'TCP uses three-way handshake to establish a connection session.',correct:1,explanation:'TRUE - TCP uses SYN → SYN-ACK → ACK.',tip:'TCP 3-way: SYN, SYN-ACK, ACK'},
+{id:9,type:'mc',topic:'DoS Attacks',question:'_________________ Crashes a system by sending oversized and malformed packets.',options:['Smurf','Ping of Death','DNS Attack','SYN Flood'],correct:2,explanation:'Ping of Death uses oversized/malformed packets.',tip:'Death = oversized deadly packets'},
+{id:10,type:'mc',topic:'DoS Attacks',question:'In DoS Resource Attacks, which aims to overload system sources or network handling software?',options:['Application resources','Network bandwidth','System resources','User resources'],correct:3,explanation:'System resources target OS and network software.',tip:'System = CPU, memory, OS'},
+{id:11,type:'mc',topic:'Database Security',question:'The most common database query language for relational databases is:',options:['NoSQL','MongoDB','SQL','GraphQL'],correct:3,explanation:'SQL is the standard for relational databases.',tip:'SQL = Structured Query Language'},
+{id:12,type:'mc',topic:'SQLi Attacks',question:'_________________ attackers inject SQL commands through web forms.',options:['Second-order SQLi','Cookies SQLi','User-input SQLi','Physical SQLi'],correct:3,explanation:'User-input SQLi uses web form inputs.',tip:'User input = forms, search boxes'},
+{id:13,type:'mc',topic:'SQLi Attacks',question:'_________________ relies on data already in the system to trigger an attack later.',options:['User-input','Second-order SQLi','Cookies','Physical'],correct:2,explanation:'Second-order uses stored data to attack later.',tip:'Second-order = attack on SECOND use'},
+{id:14,type:'mc',topic:'SQLi Attacks',question:'_________________ uses browser cookies to inject SQL commands.',options:['User-input','Second-order','Cookies SQLi','Physical'],correct:3,explanation:'Cookies can be manipulated for SQL injection.',tip:'Cookies = stored browser data'},
+{id:15,type:'mc',topic:'SQLi Attacks',question:'_________________ involves barcodes, RFID tags, or scanned forms.',options:['User-input','Second-order','Cookies','Physical user input SQLi'],correct:4,explanation:'Physical input comes from tangible sources.',tip:'Physical = barcodes, RFID, scans'},
+{id:16,type:'mc',topic:'SQLi Types',question:'_________________ uses the same channel for injecting and retrieving results.',options:['Inband Attack','Inferential','Out-of-band','Blind'],correct:1,explanation:'Inband = same channel for inject and results.',tip:'Inband = IN same channel'},
+{id:17,type:'mc',topic:'SQLi Types',question:'_________________ Attacker observes server behavior to reconstruct database info.',options:['Inband','Inferential Attack','Out-of-band','Direct'],correct:2,explanation:'Inferential = infer from server responses.',tip:'Inferential = INFER from behavior'},
+{id:18,type:'mc',topic:'SQLi Countermeasures',question:'_________________ detection uses test suites to detect SQLi vulnerabilities.',options:['Anomaly based','Code analysis','Signature based','Runtime'],correct:2,explanation:'Code analysis tests for vulnerabilities.',tip:'Code analysis = testing code'},
+{id:19,type:'tf',topic:'Database Security',question:'Role-based access control (RBAC) is a natural fit for database access control.',correct:1,explanation:'TRUE - RBAC assigns permissions by roles.',tip:'RBAC = roles with permissions'},
+{id:20,type:'mc',topic:'Database Access',question:'_________________ allows few privileged users to grant and revoke access.',options:['Ownership-based','Decentralized','Centralized administration','Role-based'],correct:3,explanation:'Centralized = few admins control access.',tip:'Centralized = central authority'},
+{id:21,type:'mc',topic:'SQL Access',question:'Which SQL command grants access rights?',options:['SELECT','GRANT','REVOKE','INSERT'],correct:2,explanation:'GRANT gives permissions.',tip:'GRANT = give, REVOKE = take'},
+{id:22,type:'tf',topic:'Database Security',question:'Database encryption is the first line of defense.',correct:2,explanation:'FALSE - Encryption is the LAST line of defense.',tip:'Encryption = last resort'},
+{id:23,type:'mc',topic:'Intruders',question:'_________________ are individuals with a goal of financial reward.',options:['Activists','Cyber criminals','State-Sponsored','Others'],correct:2,explanation:'Cyber criminals want money.',tip:'Criminals = motivated by money'},
+{id:24,type:'mc',topic:'Intruders',question:'_________________ are motivated by social or political causes (hacktivists).',options:['Activists','Cyber criminals','State-Sponsored','Others'],correct:1,explanation:'Activists hack for causes.',tip:'Activist = acting on beliefs'},
+{id:25,type:'mc',topic:'Intruder Skills',question:'_________________ use existing toolkits with minimal skill (script-kiddies).',options:['Apprentice','Journeyman','Master','Expert'],correct:1,explanation:'Apprentices use pre-made tools.',tip:'Apprentice = script-kiddie'},
+{id:26,type:'mc',topic:'Intruder Skills',question:'_________________ can modify and extend attack toolkits.',options:['Apprentice','Journeyman','Master','Novice'],correct:2,explanation:'Journeymen modify existing tools.',tip:'Journeyman = can adapt tools'},
+{id:27,type:'mc',topic:'Intruder Skills',question:'_________________ discover new vulnerabilities and create powerful toolkits.',options:['Apprentice','Journeyman','Master','Intermediate'],correct:3,explanation:'Masters create new attacks.',tip:'Master = creates new attacks'},
+{id:28,type:'mc',topic:'IDS',question:'IDS has Sensors, Analyzers, and:',options:['Firewalls','User Interface','Encryption','Routers'],correct:2,explanation:'IDS = Sensors + Analyzers + UI.',tip:'IDS components: S-A-UI'},
+{id:29,type:'mc',topic:'IDS',question:'_________________ monitors a single host.',options:['NIDS','HIDS','Distributed','Hybrid'],correct:2,explanation:'HIDS monitors one host.',tip:'HIDS = Host-based'},
+{id:30,type:'mc',topic:'IDS',question:'_________________ monitors network traffic.',options:['NIDS','HIDS','File-based','Application'],correct:1,explanation:'NIDS monitors network traffic.',tip:'NIDS = Network traffic'},
+{id:31,type:'tf',topic:'IDS',question:'NIDS can use only signature/heuristic analysis.',correct:2,explanation:'FALSE - NIDS uses both signature AND anomaly.',tip:'NIDS = both methods'},
+{id:32,type:'tf',topic:'IDS',question:'NIDS examines user and software activity on a host.',correct:2,explanation:'FALSE - This describes HIDS.',tip:'NIDS = network, HIDS = host'},
+{id:33,type:'mc',topic:'IDS Analysis',question:'_________________ analyzes behavior to detect intruders vs legitimate users.',options:['Signature','Anomaly detection','Heuristic','Pattern'],correct:2,explanation:'Anomaly = baseline of normal, flag deviations.',tip:'Anomaly = abnormal behavior'},
+{id:34,type:'mc',topic:'IDS Analysis',question:'_________________ uses known malicious patterns.',options:['Anomaly','Signature/Heuristic','Behavioral','Statistical'],correct:2,explanation:'Signature = known attack patterns.',tip:'Signature = known patterns'},
+{id:35,type:'mc',topic:'OS Security',question:'_________________ manages hardware and provides tools for applications.',options:['Application','Operating System','Firmware','Middleware'],correct:2,explanation:'OS manages hardware and resources.',tip:'OS = foundation'},
+{id:36,type:'mc',topic:'OS Security',question:'_________________ is the heart of OS, first loaded, manages resources.',options:['Shell','Kernel','BIOS','Bootloader'],correct:2,explanation:'Kernel is the core of OS.',tip:'Kernel = core/heart'},
+{id:37,type:'mc',topic:'OS Hardening',question:'_________________ configures OS securely by updating and removing unnecessary apps.',options:['Patching','Hardening','Encrypting','Virtualizing'],correct:2,explanation:'Hardening reduces attack surface.',tip:'Hardening = hard to attack'},
+{id:38,type:'mc',topic:'Updates',question:'_________________ fixes security-related vulnerabilities.',options:['Critical Update','Security Update','Service Pack','Driver Update'],correct:2,explanation:'Security Updates fix security holes.',tip:'Security Update = security fixes'},
+{id:39,type:'mc',topic:'Updates',question:'_________________ is a cumulative grouping of patches.',options:['Critical','Security','Service Pack','Windows Update'],correct:3,explanation:'Service Packs bundle updates.',tip:'Service Pack = bundle of updates'},
+{id:40,type:'tf',topic:'OS Security',question:'Application programs (MS Office, browsers) are part of the OS.',correct:2,explanation:'FALSE - Apps run ON TOP of OS.',tip:'Apps are not part of OS'},
+{id:41,type:'mc',topic:'Trusted OS',question:'Trusted OS must receive _________________ to maintain security.',options:['Hardware upgrades','Patches and Updates','New licenses','Network connections'],correct:2,explanation:'Trusted OS needs ongoing patches.',tip:'Trust = constant patches'},
+{id:42,type:'tf',topic:'OS Hardening',question:'First step in securing any system is to secure the base OS.',correct:1,explanation:'TRUE - Secure foundation first.',tip:'Secure OS first'},
+{id:43,type:'mc',topic:'SDLC',question:'CIA triad: Confidentiality, Integrity, and:',options:['Authentication','Availability','Authorization','Accountability'],correct:2,explanation:'CIA = Confidentiality, Integrity, Availability.',tip:'CIA triad'},
+{id:44,type:'mc',topic:'Race Conditions',question:'_________________ occur with overlapping access to shared resources.',options:['Buffer Overflows','Race Conditions','SQL Injections','Memory Leaks'],correct:2,explanation:'Race conditions = competing for resources.',tip:'Race = competing processes'},
+{id:45,type:'mc',topic:'Race Conditions',question:'To prevent race conditions, acquire a _________________ on shared files.',options:['Password','Lock','Key','Token'],correct:2,explanation:'Locks prevent simultaneous access.',tip:'Lock = wait your turn'},
+{id:46,type:'mc',topic:'Privilege',question:'_________________ increases attacker privileges on a system.',options:['Privilege escalation','Access control','Auth bypass','Session hijacking'],correct:1,explanation:'Privilege escalation = gaining higher access.',tip:'Escalation = climbing up'},
+{id:47,type:'mc',topic:'Protocols',question:'_________________ uses three-way handshake for reliable connections.',options:['UDP','TCP','ICMP','FTP'],correct:2,explanation:'TCP uses 3-way handshake.',tip:'TCP = reliable, handshake'},
+{id:48,type:'mc',topic:'Security Protocols',question:'_________________ encrypts web traffic between browser and server.',options:['HTTP/HTTPS','SSL/TLS','FTP/SFTP','DNS'],correct:2,explanation:'SSL/TLS encrypts web traffic.',tip:'SSL/TLS = HTTPS encryption'},
+{id:49,type:'mc',topic:'Firewalls',question:'A _________________ protects LANs from the Internet.',options:['Router','Switch','Firewall','Hub'],correct:3,explanation:'Firewalls filter traffic.',tip:'Firewall = traffic filter'},
+{id:50,type:'tf',topic:'IPS',question:'HIPS can use signature/heuristic or anomaly detection.',correct:1,explanation:'TRUE - HIPS uses both methods.',tip:'HIPS = both approaches'},
+// NEW T/F Questions (51-70)
+{id:51,type:'tf',topic:'DoS Attacks',question:'In SYN Flood, the attacker completes the TCP three-way handshake.',correct:2,explanation:'FALSE - SYN Flood NEVER completes the handshake.',tip:'SYN Flood = never finish'},
+{id:52,type:'tf',topic:'DoS Attacks',question:'ICMP is used by Ping to test network reachability.',correct:1,explanation:'TRUE - Ping uses ICMP echo request/reply.',tip:'Ping = ICMP echo'},
+{id:53,type:'tf',topic:'Database Security',question:'Database schema refers to the actual data stored in tables.',correct:2,explanation:'FALSE - Schema is the LOGICAL STRUCTURE.',tip:'Schema = structure, not data'},
+{id:54,type:'tf',topic:'Database Security',question:'Primary Key uniquely specifies a row in a table.',correct:1,explanation:'TRUE - Primary keys are unique identifiers.',tip:'Primary Key = unique ID'},
+{id:55,type:'tf',topic:'SQLi Attacks',question:'Inband SQLi uses different channels for injection and retrieval.',correct:2,explanation:'FALSE - Inband uses SAME channel.',tip:'Inband = same channel'},
+{id:56,type:'tf',topic:'SQLi Attacks',question:'Tautology attacks use conditions that always evaluate to true.',correct:1,explanation:'TRUE - Like "1=1" always true.',tip:'Tautology = always true'},
+{id:57,type:'tf',topic:'IDS',question:'Signature detection can identify new, unknown attacks.',correct:2,explanation:'FALSE - Only known attacks.',tip:'Signatures = known only'},
+{id:58,type:'tf',topic:'IDS',question:'IDS must be fault tolerant and recover from crashes.',correct:1,explanation:'TRUE - IDS needs continuous operation.',tip:'IDS = no downtime'},
+{id:59,type:'tf',topic:'IDS',question:'HIDS monitors network traffic at selected points.',correct:2,explanation:'FALSE - HIDS monitors host, NIDS monitors network.',tip:'HIDS = host only'},
+{id:60,type:'tf',topic:'Honeypots',question:'Honeypots serve legitimate users while detecting attackers.',correct:2,explanation:'FALSE - Honeypots have NO production value.',tip:'Honeypot = trap only'},
+{id:61,type:'tf',topic:'Virtualization',question:'Type-1 hypervisor runs directly on hardware without an OS.',correct:1,explanation:'TRUE - Type-1 = bare-metal.',tip:'Type-1 = on hardware'},
+{id:62,type:'tf',topic:'Virtualization',question:'Containers require a full OS for each application.',correct:2,explanation:'FALSE - Containers SHARE one OS kernel.',tip:'Containers = shared kernel'},
+{id:63,type:'tf',topic:'Firewalls',question:'A firewall can only be hardware, not software.',correct:2,explanation:'FALSE - Can be hardware OR software.',tip:'Firewall = HW or SW'},
+{id:64,type:'tf',topic:'OS Security',question:'System programs like device drivers are NOT part of the OS.',correct:2,explanation:'FALSE - System programs ARE part of OS.',tip:'System programs = OS'},
+{id:65,type:'tf',topic:'OS Security',question:'CPU processes data and executes instructions.',correct:1,explanation:'TRUE - CPU is the brain/calculator.',tip:'CPU = brain'},
+{id:66,type:'tf',topic:'OS Security',question:'RAM retains data after reboot.',correct:2,explanation:'FALSE - RAM is volatile, cleared on reboot.',tip:'RAM = temporary'},
+{id:67,type:'tf',topic:'SDLC',question:'Integrity ensures data is available when needed.',correct:2,explanation:'FALSE - That is AVAILABILITY.',tip:'I=Integrity, A=Availability'},
+{id:68,type:'tf',topic:'SDLC',question:'Confidentiality ensures only authorized users access data.',correct:1,explanation:'TRUE - Confidentiality = access control.',tip:'Confidentiality = secrets'},
+{id:69,type:'tf',topic:'Intruders',question:'State-sponsored hackers are motivated by financial reward.',correct:2,explanation:'FALSE - They work for government goals.',tip:'State = politics, not money'},
+{id:70,type:'tf',topic:'Security Protocols',question:'SSL/TLS only encrypts but does not authenticate servers.',correct:2,explanation:'FALSE - SSL/TLS does BOTH.',tip:'SSL/TLS = encrypt + auth'},
+// NEW MC Questions (71-90)
+{id:71,type:'mc',topic:'Database Security',question:'_________________ is a collection of data with rules organizing it.',options:['Database','Schema','Query','Table'],correct:1,explanation:'Database = data + rules.',tip:'Database = data + rules'},
+{id:72,type:'mc',topic:'Database Security',question:'_________________ defines rules and controls database access.',options:['System Admin','Database Administrator','Network Admin','Security Analyst'],correct:2,explanation:'DBA manages database.',tip:'DBA = database boss'},
+{id:73,type:'mc',topic:'Database Security',question:'_________________ is a command to retrieve, modify, add, or delete data.',options:['Schema','Attribute','Query','Index'],correct:3,explanation:'Query = database command.',tip:'Query = question to DB'},
+{id:74,type:'mc',topic:'Database Security',question:'_________________ is the name of each column in a database.',options:['Schema','Attribute','Field','Record'],correct:2,explanation:'Attribute = column name.',tip:'Attribute = column header'},
+{id:75,type:'mc',topic:'SQLi Countermeasures',question:'_________________ detection compares against known SQLi patterns.',options:['Anomaly','Signature based','Code analysis','Runtime'],correct:2,explanation:'Signature = known patterns.',tip:'Signature = fingerprints'},
+{id:76,type:'mc',topic:'SQLi Countermeasures',question:'_________________ detection defines normal SQL and flags deviations.',options:['Signature','Anomaly based','Code analysis','Defensive'],correct:2,explanation:'Anomaly = normal baseline.',tip:'Anomaly = abnormal'},
+{id:77,type:'mc',topic:'IDS Analysis',question:'_________________ uses data mining to learn classification models.',options:['Statistical','Knowledge','Machine-learning','Heuristic'],correct:3,explanation:'ML learns from data.',tip:'ML = automatic learning'},
+{id:78,type:'mc',topic:'IDS Analysis',question:'_________________ uses expert rules to classify behavior.',options:['Statistical','Knowledge based','Machine-learning','Signature'],correct:2,explanation:'Knowledge = expert rules.',tip:'Knowledge = human rules'},
+{id:79,type:'mc',topic:'Virtualization',question:'_________________ creates virtual versions running in simulated environments.',options:['Emulation','Virtualization','Containerization','Simulation'],correct:2,explanation:'Virtualization = virtual systems.',tip:'Virtual = simulated'},
+{id:80,type:'mc',topic:'Virtualization',question:'_________________ manages physical resources for VMs.',options:['VM','Container','Hypervisor','Emulator'],correct:3,explanation:'Hypervisor manages VMs.',tip:'Hypervisor = VM manager'},
+{id:81,type:'mc',topic:'Virtualization',question:'_________________ hypervisors run directly on hardware.',options:['Type-1 (Bare-Metal)','Type-2 (Hosted)','Type-3','Type-4'],correct:1,explanation:'Type-1 = on hardware.',tip:'Type-1 = bare metal'},
+{id:82,type:'mc',topic:'Virtualization',question:'_________________ hypervisors run on top of an OS.',options:['Type-1','Type-2 (Hosted)','Type-3','Type-4'],correct:2,explanation:'Type-2 = on OS.',tip:'Type-2 = on existing OS'},
+{id:83,type:'mc',topic:'Firewalls',question:'Firewalls control traffic based on:',options:['User preferences','Security rules','Random selection','Traffic volume'],correct:2,explanation:'Firewalls use predefined rules.',tip:'Firewall = rules-based'},
+{id:84,type:'mc',topic:'Honeypots',question:'_________________ honeypot emulates services but is less realistic.',options:['High interaction','Low interaction','Medium','Full'],correct:2,explanation:'Low = emulated, safer.',tip:'Low = fake services'},
+{id:85,type:'mc',topic:'Honeypots',question:'_________________ honeypot is a real system, more realistic but riskier.',options:['High interaction','Low interaction','Medium','Partial'],correct:1,explanation:'High = real system.',tip:'High = real, risky'},
+{id:86,type:'mc',topic:'IDS',question:'_________________ sensor sits in the traffic path.',options:['Passive','Inline Sensor','External','Virtual'],correct:2,explanation:'Inline = in traffic path.',tip:'Inline = in the line'},
+{id:87,type:'mc',topic:'HIPS',question:'HIPS protects against:',options:['Network scanning','Buffer-overflow exploits','DNS poisoning','ARP spoofing'],correct:2,explanation:'HIPS protects host from attacks.',tip:'HIPS = host protection'},
+{id:88,type:'mc',topic:'HIPS',question:'_________________ attempts to give users Root/Admin access.',options:['Buffer-overflow','Privilege-escalation','Directory traversal','Rootkit'],correct:2,explanation:'Privilege escalation = gain higher access.',tip:'Escalation = climb to admin'},
+{id:89,type:'mc',topic:'Updates',question:'_________________ fixes critical non-security bugs.',options:['Security Update','Critical Update','Service Pack','Driver Update'],correct:2,explanation:'Critical = important bug fix.',tip:'Critical = not security'},
+{id:90,type:'mc',topic:'Updates',question:'_________________ updates hardware device drivers.',options:['Security','Critical','Service Pack','Driver Update'],correct:4,explanation:'Driver = hardware updates.',tip:'Driver = hardware'}
+];
+
+const essayQ=[
+// Q1: DoS Attacks (10)
+{id:'e1',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'Ping Flood sends too many _________________ packets.',options:['TCP','UDP','ICMP echo request','ARP'],correct:3,explanation:'Ping Flood uses ICMP echo requests.',tip:'Ping = ICMP echo'},
+{id:'e2',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'SYN Flood exploits the _________________ used by TCP.',options:['Two-way handshake','Three-way handshake','Four-way handshake','UDP'],correct:2,explanation:'TCP uses 3-way handshake.',tip:'TCP = 3-way handshake'},
+{id:'e3',type:'tf',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'In SYN Flood, attacker sends SYN but never sends final ACK.',correct:1,explanation:'TRUE - leaves connections half-open.',tip:'SYN never finishes'},
+{id:'e4',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'UDP Flood works because UDP is:',options:['Connection-oriented','Connectionless','Encrypted','Authenticated'],correct:2,explanation:'UDP is connectionless.',tip:'UDP = no connection'},
+{id:'e5',type:'tf',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'UDP Flood requires establishing a connection first.',correct:2,explanation:'FALSE - UDP is connectionless.',tip:'UDP = just send'},
+{id:'e6',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'Primary goal of all flood attacks is to:',options:['Steal data','Make systems unavailable','Install malware','Gain access'],correct:2,explanation:'DoS = make unavailable.',tip:'DoS = deny service'},
+{id:'e7',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'TCP handshake sequence is:',options:['ACK→SYN→SYN-ACK','SYN→SYN-ACK→ACK','SYN-ACK→SYN→ACK','ACK→ACK→SYN'],correct:2,explanation:'SYN → SYN-ACK → ACK.',tip:'SYN first, ACK last'},
+{id:'e8',type:'tf',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'Ping Flood is also called ICMP Flood.',correct:1,explanation:'TRUE - Ping uses ICMP.',tip:'Ping = ICMP echo'},
+{id:'e9',type:'mc',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'Which flood targets transport layer connection establishment?',options:['Ping Flood','SYN Flood','UDP Flood','DNS Flood'],correct:2,explanation:'SYN targets TCP connections.',tip:'SYN = TCP transport'},
+{id:'e10',type:'tf',topic:'DoS',essayTopic:'Q1) Explain Ping Flood, SYN Flood, and UDP Flood Attacks',question:'All flood attacks exhaust resources by overwhelming with traffic.',correct:1,explanation:'TRUE - too much traffic.',tip:'Flood = overwhelm'},
+// Q2: IDS Analysis (10)
+{id:'e11',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Anomaly detection first develops a model of _________________ behavior.',options:['Attacker','Legitimate user','Network device','Malware'],correct:2,explanation:'Learn normal, detect abnormal.',tip:'Anomaly = learn normal'},
+{id:'e12',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Signature detection is also known as:',options:['Behavior detection','Misuse detection','Statistical','Learning'],correct:2,explanation:'Signature = Misuse detection.',tip:'Signature = misuse'},
+{id:'e13',type:'tf',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Signature detection can identify new unknown attacks.',correct:2,explanation:'FALSE - only known attacks.',tip:'Signature = known only'},
+{id:'e14',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Which uses univariate, multivariate, or time-series models?',options:['Knowledge','Machine-learning','Statistical','Rule based'],correct:3,explanation:'Statistical uses math models.',tip:'Statistical = math'},
+{id:'e15',type:'tf',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Anomaly detection requires training phase to learn normal behavior.',correct:1,explanation:'TRUE - must learn normal first.',tip:'Learn normal first'},
+{id:'e16',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Which uses data mining to automatically determine models?',options:['Statistical','Knowledge','Machine-learning','Signature'],correct:3,explanation:'ML = automatic learning.',tip:'ML = data mining'},
+{id:'e17',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Knowledge-based uses _________________ to classify behavior.',options:['Neural networks','Expert rules','Statistical models','Random sampling'],correct:2,explanation:'Knowledge = human expert rules.',tip:'Knowledge = expert rules'},
+{id:'e18',type:'tf',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Signature detection compares against known attack patterns.',correct:1,explanation:'TRUE - pattern matching.',tip:'Signature = patterns'},
+{id:'e19',type:'mc',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Main advantage of anomaly detection over signature:',options:['Faster','Fewer false positives','Can detect unknown attacks','Simpler'],correct:3,explanation:'Anomaly finds new attacks.',tip:'Anomaly = new attacks'},
+{id:'e20',type:'tf',topic:'IDS',essayTopic:'Q2) Explain Anomaly detection and Signature/Heuristic detection',question:'Heuristic detection is another term for signature detection.',correct:1,explanation:'TRUE - both use known patterns.',tip:'Heuristic = Signature'},
+// Q3: SQLi Types (10)
+{id:'e21',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'_________________ uses same channel for injection and results.',options:['Out-of-band','Inferential','Inband','Blind'],correct:3,explanation:'Inband = same channel.',tip:'Inband = same channel'},
+{id:'e22',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'_________________ involves observing server behavior to infer info.',options:['Inband','Inferential','Out-of-band','Direct'],correct:2,explanation:'Inferential = observe behavior.',tip:'Inferential = infer'},
+{id:'e23',type:'tf',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Out-of-band SQLi uses same channel for injection and retrieval.',correct:2,explanation:'FALSE - uses DIFFERENT channels.',tip:'Out-of-band = different'},
+{id:'e24',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Tautology attacks (OR 1=1) are a type of:',options:['Inferential','Out-of-band','Inband','Time-based'],correct:3,explanation:'Tautology = Inband.',tip:'Tautology = Inband'},
+{id:'e25',type:'tf',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Inferential is called "Blind" because attacker cannot see direct results.',correct:1,explanation:'TRUE - relies on indirect clues.',tip:'Inferential = Blind'},
+{id:'e26',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Piggybacked queries are a form of:',options:['Inferential','Out-of-band','Inband','Timing'],correct:3,explanation:'Piggybacked = Inband.',tip:'Piggybacked = Inband'},
+{id:'e27',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Which SQLi type gathers info about database structure first?',options:['Inband','Inferential','Out-of-band','Union'],correct:2,explanation:'Inferential = reconnaissance.',tip:'Inferential = learn DB'},
+{id:'e28',type:'tf',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'In Inband SQLi, data appears directly on the web page.',correct:1,explanation:'TRUE - results shown directly.',tip:'Inband = see results'},
+{id:'e29',type:'mc',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'Out-of-band might use _________________ to exfiltrate data.',options:['Web page','DNS requests','Error messages','Login forms'],correct:2,explanation:'Out-of-band uses DNS, HTTP to external servers.',tip:'Out-of-band = DNS, HTTP'},
+{id:'e30',type:'tf',topic:'SQLi',essayTopic:'Q3) What are the three main SQLi categories? Explain each.',question:'The three main SQLi types are: Inband, Inferential, and Out-of-band.',correct:1,explanation:'TRUE - these are the three categories.',tip:'3 types: In, Inferential, Out'},
+// Q4: Virtualization (10)
+{id:'e31',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Virtualization creates a _________________ version of a system.',options:['Physical','Virtual','Hardware','Network'],correct:2,explanation:'Virtual = not physical.',tip:'Virtual = simulated'},
+{id:'e32',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Software that manages resources for VMs is called:',options:['VMM','Hypervisor','Container','Both A and B'],correct:4,explanation:'Hypervisor = VMM.',tip:'Hypervisor = VMM'},
+{id:'e33',type:'tf',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Type-1 hypervisors run on top of an existing OS.',correct:2,explanation:'FALSE - Type-1 runs directly on hardware.',tip:'Type-1 = bare metal'},
+{id:'e34',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Type-2 hypervisors run on top of:',options:['Hardware directly','An operating system','Containers','Network'],correct:2,explanation:'Type-2 = hosted on OS.',tip:'Type-2 = on OS'},
+{id:'e35',type:'tf',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Type-1 is also called "Bare-Metal" hypervisor.',correct:1,explanation:'TRUE - runs directly on metal/hardware.',tip:'Type-1 = bare metal'},
+{id:'e36',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Virtualization allows multiple _________________ on one physical host.',options:['Users','Virtual machines','Networks','Databases'],correct:2,explanation:'VMs share one host.',tip:'Multiple VMs on one host'},
+{id:'e37',type:'tf',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Containers share the host OS kernel, unlike full VMs.',correct:1,explanation:'TRUE - containers share kernel.',tip:'Containers = shared kernel'},
+{id:'e38',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'A benefit of virtualization is:',options:['More hardware needed','Efficient resource use','Slower performance','Single OS only'],correct:2,explanation:'Virtualization = efficient resource use.',tip:'Efficient use of resources'},
+{id:'e39',type:'tf',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Type-2 hypervisor relies on host OS for hardware interactions.',correct:1,explanation:'TRUE - Type-2 uses host OS.',tip:'Type-2 = needs host OS'},
+{id:'e40',type:'mc',topic:'Virtualization',essayTopic:'Q4) Explain Virtualization and Hypervisor. Type-1 vs Type-2?',question:'Security for virtualization should include securing the:',options:['VMs only','Hypervisor only','Both VMs and hypervisor','Network only'],correct:3,explanation:'Secure all elements.',tip:'Secure VMs + hypervisor'},
+// Q5: Firewalls (10)
+{id:'e41',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'A firewall monitors and controls traffic based on:',options:['Random rules','Security rules','User mood','Time of day'],correct:2,explanation:'Firewalls use security rules.',tip:'Firewall = rules'},
+{id:'e42',type:'tf',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'A firewall can only be implemented as hardware.',correct:2,explanation:'FALSE - can be hardware OR software.',tip:'Firewall = HW or SW'},
+{id:'e43',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewalls establish a barrier between:',options:['Users and apps','Trusted internal and untrusted external networks','CPU and RAM','Hard drives'],correct:2,explanation:'Firewall separates internal/external.',tip:'Inside vs outside'},
+{id:'e44',type:'tf',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewalls are used as perimeter defense.',correct:1,explanation:'TRUE - first line at network edge.',tip:'Perimeter = edge defense'},
+{id:'e45',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewall capability: single _________________ to impose security.',options:['User','Choke point','Application','Database'],correct:2,explanation:'Choke point = one controlled entry.',tip:'Choke point = single entry'},
+{id:'e46',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewall capability: isolate _________________ from external networks.',options:['Users','Internal systems','Applications','Databases'],correct:2,explanation:'Isolate internal from external.',tip:'Isolate inside'},
+{id:'e47',type:'tf',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewalls can provide security auditing capabilities.',correct:1,explanation:'TRUE - logging and auditing.',tip:'Firewall = audit/log'},
+{id:'e48',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Internet connectivity creates _________________ for organizations.',options:['Opportunities only','Threats','No change','Speed'],correct:2,explanation:'Internet = essential but creates threats.',tip:'Internet = threat vector'},
+{id:'e49',type:'tf',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'A firewall monitors both incoming AND outgoing traffic.',correct:1,explanation:'TRUE - monitors both directions.',tip:'Both in and out'},
+{id:'e50',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewall is an effective means of protecting:',options:['Individual files','LANs (Local Area Networks)','Single applications','USB drives'],correct:2,explanation:'Firewalls protect entire LANs.',tip:'Firewall = LAN protection'}
+];
+
+// Game State
+let stats={totalCorrect:0,totalWrong:0,streak:0,bestStreak:0,xp:0,level:1,topicStats:{}};
+let usedQ=[],currentQ=null,selectedAns=null,showingFeedback=false,gameMode='main';
+
+// Ranks by level
+const ranks=[
+{l:1,name:'Rookie Agent',emoji:'🔰'},{l:2,name:'Trainee',emoji:'📚'},{l:3,name:'Junior Analyst',emoji:'📊'},
+{l:4,name:'Network Guardian',emoji:'🌐'},{l:5,name:'Security Officer',emoji:'🎖️'},{l:6,name:'Cyber Specialist',emoji:'🔐'},
+{l:7,name:'Senior Analyst',emoji:'⭐'},{l:8,name:'Elite Defender',emoji:'🛡️'},{l:9,name:'Security Master',emoji:'🏆'},
+{l:10,name:'Cyber Legend',emoji:'👑'}
+];
+
+function getRank(level){return ranks[Math.min(level,10)-1]||ranks[0];}
+function xpForLevel(l){return l*100;}
+
+function loadStats(){
+  try{const s=localStorage.getItem('cyber-quiz-v2');if(s)stats=JSON.parse(s);}catch(e){}
+  updateUI();
+}
+
+function saveStats(){
+  try{localStorage.setItem('cyber-quiz-v2',JSON.stringify(stats));}catch(e){}
+}
+
+function checkLevelUp(){
+  const needed=xpForLevel(stats.level);
+  if(stats.xp>=needed&&stats.level<10){
+    stats.xp-=needed;
+    stats.level++;
+    saveStats();
+    showLevelUp();
+    return true;
+  }
+  return false;
+}
+
+function showLevelUp(){
+  const r=getRank(stats.level);
+  document.getElementById('level-up-rank').textContent='Level '+stats.level+' - '+r.name;
+  document.getElementById('level-up-overlay').classList.add('show');
+}
+
+function closeLevelUp(){
+  document.getElementById('level-up-overlay').classList.remove('show');
+  updateUI();
+}
+
+function showAchievement(text){
+  const t=document.getElementById('achievement-toast');
+  t.textContent=text;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function updateUI(){
+  const total=stats.totalCorrect+stats.totalWrong;
+  const pct=total>0?Math.round((stats.totalCorrect/total)*100):0;
+  const r=getRank(stats.level);
+  const xpNeeded=xpForLevel(stats.level);
+  const xpPct=Math.min((stats.xp/xpNeeded)*100,100);
+  
+  document.getElementById('level-badge').textContent='LVL '+stats.level;
+  document.getElementById('rank-title').textContent=r.emoji+' '+r.name;
+  document.getElementById('xp-text').textContent=stats.xp+' / '+xpNeeded+' XP to next level';
+  document.getElementById('xp-bar').style.width=xpPct+'%';
+  document.getElementById('header-correct').textContent=stats.totalCorrect;
+  document.getElementById('header-wrong').textContent=stats.totalWrong;
+  document.getElementById('header-streak').textContent='🔥 '+stats.streak;
+  document.getElementById('header-accuracy').textContent=pct+'%';
+  
+  document.getElementById('menu-correct').textContent=stats.totalCorrect;
+  document.getElementById('menu-wrong').textContent=stats.totalWrong;
+  
+  document.getElementById('stats-correct').textContent=stats.totalCorrect;
+  document.getElementById('stats-wrong').textContent=stats.totalWrong;
+  document.getElementById('stats-xp').textContent=stats.xp;
+  document.getElementById('stats-level').textContent=stats.level;
+  
+  const tl=document.getElementById('topic-list');
+  const topics=Object.entries(stats.topicStats);
+  if(topics.length===0){
+    tl.innerHTML='<div class="empty-stats">No data yet</div>';
+  }else{
+    tl.innerHTML=topics.map(([t,d])=>{
+      const p=Math.round((d.correct/(d.correct+d.wrong))*100);
+      const c=p>=70?'good':p>=50?'medium':'bad';
+      return '<div class="topic-item"><span class="topic-name">'+t+'</span><span class="topic-score '+c+'">'+d.correct+'/'+(d.correct+d.wrong)+' ('+p+'%)</span></div>';
+    }).join('');
+  }
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showMenu(){showScreen('menu-screen');updateUI();}
+function showStats(){showScreen('stats-screen');updateUI();}
+
+function getRandomQ(){
+  const bank=gameMode==='essay'?essayQ:mainQ;
+  let avail=bank.filter(q=>!usedQ.includes(q.id));
+  if(avail.length===0){usedQ=[];avail=bank;}
+  return avail[Math.floor(Math.random()*avail.length)];
+}
+
+function startGame(mode){
+  gameMode=mode;
+  usedQ=[];
+  currentQ=getRandomQ();
+  selectedAns=null;
+  showingFeedback=false;
+  renderQuestion();
+  showScreen('question-screen');
+}
+
+function renderQuestion(){
+  const q=currentQ;
+  const mi=document.getElementById('mode-indicator');
+  const eb=document.getElementById('essay-topic-banner');
+  
+  if(gameMode==='essay'){
+    mi.textContent='📝 ESSAY PREP';
+    mi.className='mode-indicator essay';
+    eb.style.display='block';
+    document.getElementById('essay-topic-title').textContent=q.essayTopic;
+  }else{
+    mi.textContent='📚 MAIN QUIZ';
+    mi.className='mode-indicator main';
+    eb.style.display='none';
+  }
+  
+  const te=document.getElementById('q-type');
+  te.textContent=q.type==='mc'?'📝 Multiple Choice':'✓✗ True/False';
+  te.className='question-type '+(q.type==='mc'?'mc':'tf');
+  
+  document.getElementById('q-topic').textContent='Topic: '+q.topic;
+  document.getElementById('q-text').textContent=q.question;
+  
+  const oe=document.getElementById('q-options');
+  if(q.type==='mc'){
+    const letters=['A','B','C','D'];
+    oe.innerHTML=q.options.map((o,i)=>
+      '<button class="option-btn" data-value="'+(i+1)+'" onclick="selectAnswer('+(i+1)+')"><span class="option-letter">'+letters[i]+'</span>'+o+'</button>'
+    ).join('');
+  }else{
+    oe.innerHTML='<button class="option-btn" data-value="1" onclick="selectAnswer(1)"><span class="option-letter true">1</span>True</button><button class="option-btn" data-value="2" onclick="selectAnswer(2)"><span class="option-letter false">2</span>False</button>';
+  }
+  
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+}
+
+function selectAnswer(val){
+  if(showingFeedback)return;
+  selectedAns=val;
+  showingFeedback=true;
+  const correct=val===currentQ.correct;
+  
+  usedQ.push(currentQ.id);
+  
+  let xpGain=0;
+  if(correct){
+    stats.totalCorrect++;
+    stats.streak++;
+    xpGain=10+Math.min(stats.streak*2,20);
+    stats.xp+=xpGain;
+    if(stats.streak>stats.bestStreak)stats.bestStreak=stats.streak;
+    if(stats.streak===5)showAchievement('🔥 5 Streak!');
+    if(stats.streak===10)showAchievement('🔥🔥 10 Streak!');
+    if(stats.totalCorrect===50)showAchievement('🎯 50 Correct!');
+    if(stats.totalCorrect===100)showAchievement('💯 100 Correct!');
+  }else{
+    stats.totalWrong++;
+    stats.streak=0;
+  }
+  
+  const t=currentQ.topic;
+  if(!stats.topicStats[t])stats.topicStats[t]={correct:0,wrong:0};
+  if(correct)stats.topicStats[t].correct++;else stats.topicStats[t].wrong++;
+  
+  saveStats();
+  
+  document.querySelectorAll('.option-btn').forEach(b=>{
+    b.disabled=true;
+    const bv=parseInt(b.dataset.value);
+    if(bv===currentQ.correct)b.classList.add('correct');
+    else if(bv===selectedAns&&!correct)b.classList.add('wrong');
+  });
+  
+  const fe=document.getElementById('feedback');
+  fe.className='feedback '+(correct?'correct':'wrong');
+  fe.style.display='block';
+  document.getElementById('feedback-title').textContent=correct?'✅ Correct! +'+xpGain+' XP':'❌ Incorrect';
+  document.getElementById('feedback-explanation').textContent=currentQ.explanation;
+  document.getElementById('feedback-tip').innerHTML='💡 <strong>Tip:</strong> '+currentQ.tip;
+  document.getElementById('next-btn').style.display='block';
+  
+  updateUI();
+  setTimeout(()=>checkLevelUp(),500);
+}
+
+function nextQuestion(){
+  currentQ=getRandomQ();
+  selectedAns=null;
+  showingFeedback=false;
+  renderQuestion();
+}
+
+function resetStats(){
+  if(confirm('Reset all progress?')){
+    stats={totalCorrect:0,totalWrong:0,streak:0,bestStreak:0,xp:0,level:1,topicStats:{}};
+    usedQ=[];
+    saveStats();
+    updateUI();
+  }
+}
+
+document.addEventListener('DOMContentLoaded',loadStats);
+</script>
+</body>
+</html>
