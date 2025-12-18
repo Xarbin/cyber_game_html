@@ -198,7 +198,7 @@
     <div class="footer">Cyber Security Quiz v2.0 • 140 Questions</div>
   </div>
 <script>
-// Question Banks
+// Question Banks - Pulled from Lecture Slidessss 
 const mainQ=[
 {id:1,type:'mc',topic:'DoS Attacks',question:'_________________ A malicious action that prevents the use of systems, networks, or applications by exhausting resources such as CPU, memory, bandwidth, and disk space.',options:['Flood Attack','Denial-of-Service (DoS)','Virus','Botnet'],correct:2,explanation:'DoS attacks make systems unavailable by exhausting resources.',tip:'DoS = Denial of Service'},
 {id:2,type:'mc',topic:'DoS Attacks',question:'_________________ The attacker sends a ping with a spoofed source address. The server responds to the spoofed address belonging to the victim.',options:['Ping Flood','UDP Flood','Smurf Attack','SYN Flood'],correct:3,explanation:'Smurf Attack uses spoofed ping requests with broadcast amplification.',tip:'Smurf = Spoofed + Amplification'},
@@ -352,11 +352,11 @@ const essayQ=[
 {id:'e50',type:'mc',topic:'Firewalls',essayTopic:'Q5) What is a Firewall? List 3 capabilities.',question:'Firewall is an effective means of protecting:',options:['Individual files','LANs (Local Area Networks)','Single applications','USB drives'],correct:2,explanation:'Firewalls protect entire LANs.',tip:'Firewall = LAN protection'}
 ];
 
-// Game State
+// Game State (initial)
 let stats={totalCorrect:0,totalWrong:0,streak:0,bestStreak:0,xp:0,level:1,topicStats:{}};
 let usedQ=[],currentQ=null,selectedAns=null,showingFeedback=false,gameMode='main';
 
-// Ranks by level
+// Leveling up system. dont judge
 const ranks=[
 {l:1,name:'Rookie Agent',emoji:'🔰'},{l:2,name:'Trainee',emoji:'📚'},{l:3,name:'Junior Analyst',emoji:'📊'},
 {l:4,name:'Network Guardian',emoji:'🌐'},{l:5,name:'Security Officer',emoji:'🎖️'},{l:6,name:'Cyber Specialist',emoji:'🔐'},
